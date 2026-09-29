@@ -18,11 +18,10 @@ import database as db
 logging.basicConfig(level=logging.INFO)
 
 # =================== سحب الإعدادات من المتغيرات البيئية ===================
-# يقوم الكود هنا بجلب البيانات بشكل آمن وسري من سيرفر ريندر مباشرة
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-ADMIN_ID = int(os.environ.get("ADMIN_ID", 0))  # سيتم تحويل الآيدي لرقم تلقائياً
+ADMIN_ID = int(os.environ.get("ADMIN_ID", 0))  
 SECRET_TOKEN = os.environ.get("SECRET_TOKEN", "MY_SUPER_SECRET_KEY_123")
-WEB_APP_URL = os.environ.get("WEB_APP_URL", "https://onrender.com")
+WEB_APP_URL = os.environ.get("WEB_APP_URL", "https://t.me")
 
 # التحقق من وجود التوكن لمنع تشغيل السيرفر بأخطاء
 if not BOT_TOKEN:
@@ -192,13 +191,18 @@ async def handle_admin_action(callback: types.CallbackQuery):
     conn.close()
     await callback.message.edit_text(f"✅ تم معالجة الإجراء بنجاح للطلب #{req_id}.")
 
-# تشغيل البوت وخادم الـ API معاً
+# --- تعديل آلية الإقلاع والتشغيل المتوافقة مع ريندر ---
+@app.on_event("startup")
+async def on_startup():
+    logging.info("🚀 جاري تشغيل استقصاء البوت (Polling) في الخلفية...")
+    asyncio.create_task(dp.start_polling(bot))
+
 async def main():
-    # ستقوم مكتبة uvicorn بقراءة المتغيرات وتخصيص المنفذ تلقائياً لتوافق خادم Render
     import os
     port = int(os.environ.get("PORT", 8000))
-    asyncio.create_task(uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=port)).serve())
-    await dp.start_polling(bot)
+    config = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
 
 if __name__ == "__main__":
     asyncio.run(main())
