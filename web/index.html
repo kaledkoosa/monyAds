@@ -4,69 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق تعدين KAK</title>
-    <!-- ✨ تم تصحيح رابط مكتبة تليجرام البرمجية هنا لتشغيل التطبيق المصغر بنجاح -->
     <script src="https://telegram.org"></script>
     <style>
-        /* إعدادات التصميم العام للـ Mini App */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #0f172a; 
             color: #f8fafc; 
             margin: 0; 
             padding: 0; 
-            padding-bottom: 80px; /* لترك مساحة شريط التبويبات السفلي */
+            padding-bottom: 80px; 
             box-sizing: border-box;
         }
-        
         .header { padding: 15px; text-align: center; background-color: #1e293b; border-bottom: 1px solid #334155; }
         .header h1 { margin: 0; font-size: 1.5rem; color: #38bdf8; }
-
-        /* حاوية الصفحات */
         .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
-
-        /* الكروت والأزرار داخل الصفحات */
         .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; }
-        .balance { font-size: 3rem; color: #38bdf8; font-weight: bold; margin: 10px 0; }
+        .balance { font-size: 2.5rem; color: #38bdf8; font-weight: bold; margin: 10px 0; }
+        .input-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; box-sizing: border-box; text-align: center; }
         .btn { background-color: #0284c7; color: white; border: none; padding: 14px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin: 8px 0; font-weight: bold; }
         .btn:active { background-color: #0369a1; }
         .btn-ad { background-color: #eab308; color: #0f172a; }
-        .btn-ad:active { background-color: #ca8a04; }
-
-        /* شريط التبويبات السفلي الإحترافي (Tabs Bar) */
-        .nav-tabs { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            height: 65px; 
-            background-color: #1e293b; 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center; 
-            border-top: 1px solid #334155; 
-            z-index: 1000;
-        }
-        .tab-button { 
-            background: none; 
-            border: none; 
-            color: #94a3b8; 
-            font-size: 0.85rem; 
-            cursor: pointer; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            flex-grow: 1;
-            padding: 8px 0;
-            font-weight: bold;
-        }
+        .btn-share { background-color: #10b981; }
+        .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background-color: #1e293b; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; z-index: 1000; }
+        .tab-button { background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; flex-grow: 1; padding: 8px 0; font-weight: bold; }
         .tab-button .icon { font-size: 1.4rem; margin-bottom: 3px; }
         .tab-button.active { color: #38bdf8; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -98,12 +62,28 @@
         </div>
     </div>
 
-    <!-- 3. صفحة المحفظة والسحب -->
+    <!-- 3. صفحة المحفظة ونظام الإحالة المدمج -->
     <div id="wallet-page" class="tab-content">
+        <!-- رصيد المستخدم الفعلي المجلوب من السيرفر -->
         <div class="card">
-            <h3>👛 محفظتك الرقمية</h3>
-            <p style="color: #94a3b8;">لسحب أرباحك المقومة بالدولار إلى Tonkeeper، يرجى الخروج والضغط على زر **"حسابي وتحويل العملات"** من داخل شات البوت الرئيسي لتسجيل طلب الدفع بشكل آمن وحفظ بيانات المحفظة.</p>
-            <button class="btn" onclick="closeWebAppAndWithdraw()">📥 اذهب للبوت لطلب السحب</button>
+            <h3>💰 رصيدك الإجمالي المتوفر</h3>
+            <div class="balance"><span id="live-user-balance">0.00</span> KAK</div>
+            <p style="color: #94a3b8; font-size: 0.9rem;">كل 20,000 KAK تعادل 1$ بعملة TON</p>
+        </div>
+
+        <!-- نظام التبديل والسحب -->
+        <div class="card">
+            <h3>💳 تبديل الرصيد والسحب إلى Tonkeeper</h3>
+            <input type="text" id="wallet-input" class="input-box" placeholder="أدخل عنوان محفظة TON (EQ... / UQ...)">
+            <button class="btn" onclick="requestWithdrawalFromApp()">🔄 تبديل وسحب الرصيد بالكامل</button>
+        </div>
+
+        <!-- نظام الإحالة مدمج بدون خروج للمتصفح -->
+        <div class="card">
+            <h3>👥 نظام الإحالات ودعوة الأصدقاء</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem;">احصل على 50 KAK فوراً عن كل صديق تدعوه!</p>
+            <input type="text" id="referral-link-box" class="input-box" readonly>
+            <button class="btn btn-share" onclick="shareReferralLink()">🔗 دعوة صديق الآن</button>
         </div>
     </div>
 
@@ -134,27 +114,78 @@
         const SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123"; 
 
         let sessionMined = 0.0;
-        const ratePerSecond = 10 / 86400; // الباقة المجانية (10 عملات باليوم)
+        const ratePerSecond = 10 / 86400;
 
-        // دالة التنقل بين التبويبات (Tabs)
+        // توليد رابط الإحالة بشكل تلقائي للمستخدم بداخل المربع
+        if (userId) {
+            // سيقوم السكربت بجلب اسم البوت تلقائياً من بيانات تليجرام لبناء رابط دعوة نظيف
+            const botUsername = tg.initDataUnsafe?.bot_inline_query ? "" : "tonmonys_bot"; // اسم بوتك الفعلي
+            document.getElementById('referral-link-box').value = `https://t.me{botUsername}?start=${userId}`;
+            fetchUserBalance(); // جلب الرصيد الحقيقي فور فتح المحفظة
+        }
+
         function switchTab(tabId, buttonElement) {
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.classList.remove('active'));
-
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
-
             document.getElementById(tabId).classList.add('active');
             buttonElement.classList.add('active');
+
+            if(tabId === 'wallet-page') {
+                fetchUserBalance(); // تحديث الرصيد عند فتح صفحة المحفظة
+            }
         }
 
-        // حسابات التعدين التلقائي المستمر
+        // عداد التعدين البصري السريع
         setInterval(() => {
             sessionMined += ratePerSecond;
             document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
         }, 1000);
 
-        // وظائف الإعلانات والمهام
+        // جلب الرصيد الإجمالي الفعلي للمستخدم من قاعدة البيانات
+        function fetchUserBalance() {
+            if (!userId) return;
+            fetch(`${API_BASE_URL}/api/get_balance?user_id=${userId}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    document.getElementById('live-user-balance').innerText = data.balance.toFixed(2);
+                }
+            }).catch(err => console.error(err));
+        }
+
+        // دالة تبديل الرصيد وطلب السحب من داخل التطبيق المصغر مباشرة
+        function requestWithdrawalFromApp() {
+            const walletAddress = document.getElementById('wallet-input').value.trim();
+            if (!walletAddress || walletAddress.length < 40) {
+                alert("❌ يرجى إدخال عنوان محفظة TON بشكل صحيح من تطبيق Tonkeeper!");
+                return;
+            }
+
+            fetch(`${API_BASE_URL}/api/app_withdraw`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: parseInt(userId), wallet: walletAddress, secret_key: SECRET_TOKEN })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("✅ تم تسجيل طلب التبديل والسحب بنجاح! سيتم مراجعته وإرسال الـ TON لمحفظتك يدوياً.");
+                    fetchUserBalance();
+                } else {
+                    alert("❌ خطأ: " + data.detail);
+                }
+            }).catch(err => alert("حدث خطأ أثناء معالجة الطلب."));
+        }
+
+        // دالة دعوة صديق لمنع فتح الرابط في المتصفح الخارجي وفتحه بداخل تليجرام مباشرة
+        function shareReferralLink() {
+            const refLink = document.getElementById('referral-link-box').value;
+            // استخدام واجهة تليجرام لمشاركة الرابط لشات الأصدقاء مباشرة
+            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي في بوت تعدين عملة KAK واكسب 10 عملات مجاناً يومياً! ⛏️💎')}`);
+        }
+
         function watchAd() {
             alert("انتظر 5 ثوانٍ لاكتمال الإعلان...");
             setTimeout(() => {
@@ -166,27 +197,14 @@
         function completeTask(platform) {
             if (platform === 'telegram') window.open("https://t.me", "_blank");
             else if (platform === 'x') window.open("https://x.com", "_blank");
-            
             setTimeout(() => {
                 alert("✅ تم إكمال المهمة وحصلت على 100 KAK");
                 sendRewardToBackend(100);
             }, 3000);
         }
 
-        // التواصل مع السيرفر الخلفي لحفظ الرصيد المالي
         function sendRewardToBackend(amount) {
             if (!userId) return;
             fetch(`${API_BASE_URL}/api/reward`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: parseInt(userId), amount: parseFloat(amount), secret_key: SECRET_TOKEN })
-            }).catch(err => console.error("Error updating balance:", err));
-        }
-
-        // دالة إغلاق التطبيق المصغر والتوجه لشات البوت لطلب السحب
-        function closeWebAppAndWithdraw() {
-            tg.close(); 
-        }
-    </script>
-</body>
-</html>
