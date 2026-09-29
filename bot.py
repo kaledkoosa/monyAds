@@ -1,3 +1,4 @@
+import os
 import logging
 import sqlite3
 import asyncio
@@ -16,15 +17,17 @@ import database as db
 # تفعيل تسجيل الأخطاء والمراقبة
 logging.basicConfig(level=logging.INFO)
 
-# =================== الإعدادات الأساسية ===================
-BOT_TOKEN = "ضع_توكن_البوت_هنا"
-ADMIN_ID = 123456789  # ضع الآيدي الخاص بحسابك بالتليجرام هنا لتدخل كأدمن
-SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123" # مفتاح الأمان للربط مع جافاسكريبت
+# =================== سحب الإعدادات من المتغيرات البيئية ===================
+# يقوم الكود هنا بجلب البيانات بشكل آمن وسري من سيرفر ريندر مباشرة
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+ADMIN_ID = int(os.environ.get("ADMIN_ID", 0))  # سيتم تحويل الآيدي لرقم تلقائياً
+SECRET_TOKEN = os.environ.get("SECRET_TOKEN", "MY_SUPER_SECRET_KEY_123")
+WEB_APP_URL = os.environ.get("WEB_APP_URL", "https://onrender.com")
 
-# ⚠️ ملاحظة: عند رفع السيرفر على Render واكتمال البناء بنجاح،
-# قم بتغيير الرابط أدناه إلى رابط الـ Render الخاص بك الذي ستحصل عليه.
-WEB_APP_URL = "https://onrender.com" 
-# ========================================================
+# التحقق من وجود التوكن لمنع تشغيل السيرفر بأخطاء
+if not BOT_TOKEN:
+    raise ValueError("⚠️ خطأ أمني: لم يتم العثور على متغير البيئة BOT_TOKEN في سيرفر ريندر!")
+# =========================================================================
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
