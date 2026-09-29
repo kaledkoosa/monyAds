@@ -64,21 +64,18 @@
 
     <!-- 3. صفحة المحفظة ونظام الإحالة المدمج -->
     <div id="wallet-page" class="tab-content">
-        <!-- رصيد المستخدم الفعلي المجلوب من السيرفر -->
         <div class="card">
             <h3>💰 رصيدك الإجمالي المتوفر</h3>
             <div class="balance"><span id="live-user-balance">0.00</span> KAK</div>
-            <p style="color: #94a3b8; font-size: 0.9rem;">كل 20,000 KAK تعادل 1$ بعملة TON</p>
+            <p style="color: #94a3b8; font-size: 0.9rem;">كل 20,000 KAK تعادل 1\$ بعملة TON</p>
         </div>
 
-        <!-- نظام التبديل والسحب -->
         <div class="card">
             <h3>💳 تبديل الرصيد والسحب إلى Tonkeeper</h3>
             <input type="text" id="wallet-input" class="input-box" placeholder="أدخل عنوان محفظة TON (EQ... / UQ...)">
             <button class="btn" onclick="requestWithdrawalFromApp()">🔄 تبديل وسحب الرصيد بالكامل</button>
         </div>
 
-        <!-- نظام الإحالة مدمج بدون خروج للمتصفح -->
         <div class="card">
             <h3>👥 نظام الإحالات ودعوة الأصدقاء</h3>
             <p style="color: #94a3b8; font-size: 0.9rem;">احصل على 50 KAK فوراً عن كل صديق تدعوه!</p>
@@ -116,34 +113,35 @@
         let sessionMined = 0.0;
         const ratePerSecond = 10 / 86400;
 
-        // توليد رابط الإحالة بشكل تلقائي للمستخدم بداخل المربع
+        // إعداد تلقائي لرابط الإحالة داخل الصندوق وجلب الرصيد الأولي
         if (userId) {
-            // سيقوم السكربت بجلب اسم البوت تلقائياً من بيانات تليجرام لبناء رابط دعوة نظيف
-            const botUsername = tg.initDataUnsafe?.bot_inline_query ? "" : "tonmonys_bot"; // اسم بوتك الفعلي
-            document.getElementById('referral-link-box').value = `https://t.me{botUsername}?start=${userId}`;
-            fetchUserBalance(); // جلب الرصيد الحقيقي فور فتح المحفظة
+            document.getElementById('referral-link-box').value = `https://t.me{userId}`;
+            fetchUserBalance(); 
         }
 
+        // دالة التنقل بين التبويبات والمصححة بالكامل
         function switchTab(tabId, buttonElement) {
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.classList.remove('active'));
+            
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
+            
             document.getElementById(tabId).classList.add('active');
             buttonElement.classList.add('active');
 
             if(tabId === 'wallet-page') {
-                fetchUserBalance(); // تحديث الرصيد عند فتح صفحة المحفظة
+                fetchUserBalance(); 
             }
         }
 
-        // عداد التعدين البصري السريع
+        // عداد التعدين التلقائي المستمر
         setInterval(() => {
             sessionMined += ratePerSecond;
             document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
         }, 1000);
 
-        // جلب الرصيد الإجمالي الفعلي للمستخدم من قاعدة البيانات
+        // جلب الرصيد الفعلي من خادم بايثون بدون أخطاء
         function fetchUserBalance() {
             if (!userId) return;
             fetch(`${API_BASE_URL}/api/get_balance?user_id=${userId}`)
@@ -152,10 +150,10 @@
                 if(data.status === "success") {
                     document.getElementById('live-user-balance').innerText = data.balance.toFixed(2);
                 }
-            }).catch(err => console.error(err));
+            }).catch(err => console.error("Error fetching balance:", err));
         }
 
-        // دالة تبديل الرصيد وطلب السحب من داخل التطبيق المصغر مباشرة
+        // دالة السحب والتبديل من داخل التطبيق المصغر مباشرة
         function requestWithdrawalFromApp() {
             const walletAddress = document.getElementById('wallet-input').value.trim();
             if (!walletAddress || walletAddress.length < 40) {
@@ -171,18 +169,17 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert("✅ تم تسجيل طلب التبديل والسحب بنجاح! سيتم مراجعته وإرسال الـ TON لمحفظتك يدوياً.");
+                    alert("✅ تم تسجيل طلب التبديل والسحب بنجاح! سيتم مراجعته يدويًا وإرسال الـ TON لمحفظتك قريباً.");
                     fetchUserBalance();
                 } else {
                     alert("❌ خطأ: " + data.detail);
                 }
-            }).catch(err => alert("حدث خطأ أثناء معالجة الطلب."));
+            }).catch(err => alert("حدث خطأ أثناء معالجة الطلب، تأكد من بلوغ الحد الأدنى 20,000 KAK."));
         }
 
-        // دالة دعوة صديق لمنع فتح الرابط في المتصفح الخارجي وفتحه بداخل تليجرام مباشرة
+        // مشاركة رابط الإحالة بداخل تليجرام مباشرة ومنع الخروج للمتصفحات
         function shareReferralLink() {
             const refLink = document.getElementById('referral-link-box').value;
-            // استخدام واجهة تليجرام لمشاركة الرابط لشات الأصدقاء مباشرة
             tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي في بوت تعدين عملة KAK واكسب 10 عملات مجاناً يومياً! ⛏️💎')}`);
         }
 
@@ -208,3 +205,11 @@
             fetch(`${API_BASE_URL}/api/reward`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: parseInt(userId), amount: parseFloat(amount), secret_key: SECRET_TOKEN })
+            })
+            .then(() => fetchUserBalance())
+            .catch(err => console.error(err));
+        }
+    </script>
+</body>
+</html>
