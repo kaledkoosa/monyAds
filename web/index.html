@@ -15,13 +15,9 @@
             padding-bottom: 80px; 
             box-sizing: border-box;
         }
-        .header { padding: 15px; text-align: center; background-color: #1e293b; border-bottom: 1px solid #334155; }
-        .header h1 { margin: 0; font-size: 1.5rem; color: #38bdf8; }
-        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; }
+        .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; text-align: center; }
         .balance { font-size: 2.5rem; color: #38bdf8; font-weight: bold; margin: 10px 0; }
-        .input-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; box-sizing: border-box; text-align: center; }
+        .input-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; text-align: center; }
         .btn { background-color: #0284c7; color: white; border: none; padding: 14px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin: 8px 0; font-weight: bold; }
         .btn:active { background-color: #0369a1; }
         .btn-ad { background-color: #eab308; color: #0f172a; }
@@ -30,14 +26,9 @@
         .tab-button { background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; flex-grow: 1; padding: 8px 0; font-weight: bold; }
         .tab-button .icon { font-size: 1.4rem; margin-bottom: 3px; }
         .tab-button.active { color: #38bdf8; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>🪙 مشروع عملة KAK</h1>
-    </div>
 
     <!-- 1. صفحة التعدين -->
     <div id="mining-page" class="tab-content active">
@@ -45,7 +36,6 @@
             <h3>⚡ التعدين السحابي التلقائي</h3>
             <p style="color: #94a3b8;">الباقة المجانية (10 KAK / يومياً)</p>
             <div class="balance" id="mining-counter">0.000000</div>
-            <p style="color: #64748b; font-size: 0.85rem;">يتم إضافة العملات تلقائياً بمرور الثواني.</p>
         </div>
     </div>
 
@@ -62,142 +52,103 @@
         </div>
     </div>
 
-    <!-- 3. صفحة المحفظة ونظام الإحالة المدمج -->
+    <!-- 3. صفحة المحفظة ونظام الإحالة -->
     <div id="wallet-page" class="tab-content">
         <div class="card">
             <h3>💰 رصيدك الإجمالي المتوفر</h3>
             <div class="balance"><span id="live-user-balance">0.00</span> KAK</div>
-            <p style="color: #94a3b8; font-size: 0.9rem;">كل 20,000 KAK تعادل 1\$ بعملة TON</p>
         </div>
-
         <div class="card">
             <h3>💳 تبديل الرصيد والسحب إلى Tonkeeper</h3>
-            <input type="text" id="wallet-input" class="input-box" placeholder="أدخل عنوان محفظة TON (EQ... / UQ...)">
+            <input type="text" id="wallet-input" class="input-box" placeholder="أدخل عنوان محفظة TON">
             <button class="btn" onclick="requestWithdrawalFromApp()">🔄 تبديل وسحب الرصيد بالكامل</button>
         </div>
-
         <div class="card">
-            <h3>👥 نظام الإحالات ودعوة الأصدقاء</h3>
-            <p style="color: #94a3b8; font-size: 0.9rem;">احصل على 50 KAK فوراً عن كل صديق تدعوه!</p>
+            <h3>👥 نظام الإحالة</h3>
             <input type="text" id="referral-link-box" class="input-box" readonly>
             <button class="btn btn-share" onclick="shareReferralLink()">🔗 دعوة صديق الآن</button>
         </div>
     </div>
 
-    <!-- شريط التبويبات السفلي -->
+    <!-- شريط التبويبات -->
     <nav class="nav-tabs">
-        <button class="tab-button active" onclick="switchTab('mining-page', this)">
-            <span class="icon">⛏️</span>
-            <span>التعدين</span>
-        </button>
-        <button class="tab-button" onclick="switchTab('tasks-page', this)">
-            <span class="icon">📺</span>
-            <span>المهام</span>
-        </button>
-        <button class="tab-button" onclick="switchTab('wallet-page', this)">
-            <span class="icon">👛</span>
-            <span>المحفظة</span>
-        </button>
+        <button class="tab-button active" onclick="switchTab('mining-page', this)">⛏️ التعدين</button>
+        <button class="tab-button" onclick="switchTab('tasks-page', this)">📺 المهام</button>
+        <button class="tab-button" onclick="switchTab('wallet-page', this)">👛 المحفظة</button>
     </nav>
 
+    <!-- البرمجة الذكية والاغلاقات الرسمية -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('user');
-
+        const user = tg.initDataUnsafe?.user;
+        const userId = user ? user.id : null;
         const API_BASE_URL = window.location.origin; 
         const SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123"; 
 
         let sessionMined = 0.0;
         const ratePerSecond = 10 / 86400;
 
-        // إعداد تلقائي لرابط الإحالة داخل الصندوق وجلب الرصيد الأولي
         if (userId) {
             document.getElementById('referral-link-box').value = `https://t.me{userId}`;
+            setInterval(() => {
+                sessionMined += ratePerSecond;
+                document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
+            }, 1000);
             fetchUserBalance(); 
+        } else {
+            document.getElementById('referral-link-box').value = "افتح التطبيق من تليجرام";
+            setInterval(() => {
+                sessionMined += ratePerSecond;
+                document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
+            }, 1000);
         }
 
-        // دالة التنقل بين التبويبات والمصححة بالكامل
         function switchTab(tabId, buttonElement) {
             const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => content.classList.remove('active'));
-            
+            contents.forEach(content => content.style.display = 'none');
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
-            
-            document.getElementById(tabId).classList.add('active');
+            document.getElementById(tabId).style.display = 'block';
             buttonElement.classList.add('active');
-
-            if(tabId === 'wallet-page') {
-                fetchUserBalance(); 
-            }
+            if(tabId === 'wallet-page' && userId) fetchUserBalance();
         }
 
-        // عداد التعدين التلقائي المستمر
-        setInterval(() => {
-            sessionMined += ratePerSecond;
-            document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
-        }, 1000);
-
-        // جلب الرصيد الفعلي من خادم بايثون بدون أخطاء
         function fetchUserBalance() {
             if (!userId) return;
             fetch(`${API_BASE_URL}/api/get_balance?user_id=${userId}`)
             .then(res => res.json())
             .then(data => {
-                if(data.status === "success") {
-                    document.getElementById('live-user-balance').innerText = data.balance.toFixed(2);
-                }
-            }).catch(err => console.error("Error fetching balance:", err));
+                if(data.status === "success") document.getElementById('live-user-balance').innerText = data.balance.toFixed(2);
+            });
         }
 
-        // دالة السحب والتبديل من داخل التطبيق المصغر مباشرة
         function requestWithdrawalFromApp() {
             const walletAddress = document.getElementById('wallet-input').value.trim();
-            if (!walletAddress || walletAddress.length < 40) {
-                alert("❌ يرجى إدخال عنوان محفظة TON بشكل صحيح من تطبيق Tonkeeper!");
-                return;
-            }
-
+            if (!walletAddress || walletAddress.length < 40) { alert("عنوان المحفظة غير صحيح!"); return; }
             fetch(`${API_BASE_URL}/api/app_withdraw`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: parseInt(userId), wallet: walletAddress, secret_key: SECRET_TOKEN })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    alert("✅ تم تسجيل طلب التبديل والسحب بنجاح! سيتم مراجعته يدويًا وإرسال الـ TON لمحفظتك قريباً.");
-                    fetchUserBalance();
-                } else {
-                    alert("❌ خطأ: " + data.detail);
-                }
-            }).catch(err => alert("حدث خطأ أثناء معالجة الطلب، تأكد من بلوغ الحد الأدنى 20,000 KAK."));
+            }).then(res => res.json()).then(data => {
+                if (data.status === "success") { alert("✅ تم تسجيل الطلب بنجاح!"); fetchUserBalance(); }
+            });
         }
 
-        // مشاركة رابط الإحالة بداخل تليجرام مباشرة ومنع الخروج للمتصفحات
         function shareReferralLink() {
             const refLink = document.getElementById('referral-link-box').value;
-            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي في بوت تعدين عملة KAK واكسب 10 عملات مجاناً يومياً! ⛏️💎')}`);
+            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم لتعدين KAK! ⛏️💎')}`);
         }
 
         function watchAd() {
-            alert("انتظر 5 ثوانٍ لاكتمال الإعلان...");
-            setTimeout(() => {
-                alert("✨ حصلت على 15 KAK بنجاح!");
-                sendRewardToBackend(15);
-            }, 5000);
+            alert("انتظر 5 ثوانٍ...");
+            setTimeout(() => { alert("✨ حصلت على 15 KAK"); sendRewardToBackend(15); }, 5000);
         }
 
         function completeTask(platform) {
             if (platform === 'telegram') window.open("https://t.me", "_blank");
-            else if (platform === 'x') window.open("https://x.com", "_blank");
-            setTimeout(() => {
-                alert("✅ تم إكمال المهمة وحصلت على 100 KAK");
-                sendRewardToBackend(100);
-            }, 3000);
+            setTimeout(() => { alert("✅ حصلت على 100 KAK"); sendRewardToBackend(100); }, 3000);
         }
 
         function sendRewardToBackend(amount) {
@@ -206,9 +157,7 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: parseInt(userId), amount: parseFloat(amount), secret_key: SECRET_TOKEN })
-            })
-            .then(() => fetchUserBalance())
-            .catch(err => console.error(err));
+            }).then(() => fetchUserBalance());
         }
     </script>
 </body>
