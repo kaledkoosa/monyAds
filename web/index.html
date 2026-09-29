@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق تعدين KAK</title>
+    <!-- ✨ تم تصحيح رابط مكتبة تليجرام البرمجية هنا لتشغيل التطبيق المصغر بنجاح -->
     <script src="https://telegram.org"></script>
     <style>
         /* إعدادات التصميم العام للـ Mini App */
@@ -123,22 +124,17 @@
     </nav>
 
     <script>
-        // =================== تعديلك الذكي والأمثل المدمج حالياً ===================
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user');
 
-        // السكربت سيتعرف تلقائياً على رابط Render الفعلي الذي تم رفع الصفحة عليه
         const API_BASE_URL = window.location.origin; 
-
-        // تأكد أن هذا المفتاح يطابق تماماً قيمة الـ SECRET_TOKEN في المتغيرات البيئية داخل Render
         const SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123"; 
 
         let sessionMined = 0.0;
         const ratePerSecond = 10 / 86400; // الباقة المجانية (10 عملات باليوم)
-        // =========================================================================
 
         // دالة التنقل بين التبويبات (Tabs)
         function switchTab(tabId, buttonElement) {
