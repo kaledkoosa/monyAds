@@ -123,34 +123,36 @@
     </nav>
 
     <script>
+        // =================== تعديلك الذكي والأمثل المدمج حالياً ===================
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user');
 
-        const API_BASE_URL = "http://localhost:8000"; // استبدله لاحقاً برابط سيرفرك الحقيقي
+        // السكربت سيتعرف تلقائياً على رابط Render الفعلي الذي تم رفع الصفحة عليه
+        const API_BASE_URL = window.location.origin; 
+
+        // تأكد أن هذا المفتاح يطابق تماماً قيمة الـ SECRET_TOKEN في المتغيرات البيئية داخل Render
         const SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123"; 
+
+        let sessionMined = 0.0;
+        const ratePerSecond = 10 / 86400; // الباقة المجانية (10 عملات باليوم)
+        // =========================================================================
 
         // دالة التنقل بين التبويبات (Tabs)
         function switchTab(tabId, buttonElement) {
-            // إخفاء كل الصفحات
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.classList.remove('active'));
 
-            // إزالة الحالة النشطة من كل الأزرار
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
 
-            // إظهار الصفحة المطلوبة وتنشيط زرها
             document.getElementById(tabId).classList.add('active');
             buttonElement.classList.add('active');
         }
 
         // حسابات التعدين التلقائي المستمر
-        let sessionMined = 0.0;
-        const ratePerSecond = 10 / 86400; // 10 عملات باليوم
-
         setInterval(() => {
             sessionMined += ratePerSecond;
             document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
@@ -175,7 +177,7 @@
             }, 3000);
         }
 
-        // التواصل مع السيرفر لحفظ الرصيد
+        // التواصل مع السيرفر الخلفي لحفظ الرصيد المالي
         function sendRewardToBackend(amount) {
             if (!userId) return;
             fetch(`${API_BASE_URL}/api/reward`, {
@@ -187,7 +189,7 @@
 
         // دالة إغلاق التطبيق المصغر والتوجه لشات البوت لطلب السحب
         function closeWebAppAndWithdraw() {
-            tg.close(); // إغلاق تطبيق الويب ليعود المستخدم تلقائياً للمحادثة مع البوت ويسحب
+            tg.close(); 
         }
     </script>
 </body>
