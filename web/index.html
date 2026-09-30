@@ -17,23 +17,28 @@
         }
         .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; text-align: center; }
         .balance { font-size: 2.5rem; color: #38bdf8; font-weight: bold; margin: 10px 0; }
-        .input-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; text-align: center; }
+        .input-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; text-align: center; font-size: 1rem; }
         .btn { background-color: #0284c7; color: white; border: none; padding: 14px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin: 8px 0; font-weight: bold; }
         .btn:active { background-color: #0369a1; }
         .btn-ad { background-color: #eab308; color: #0f172a; }
         .btn-share { background-color: #10b981; }
         .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background-color: #1e293b; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; z-index: 1000; }
         .tab-button { background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; flex-grow: 1; padding: 8px 0; font-weight: bold; }
-        .tab-button .icon { font-size: 1.4rem; margin-bottom: 3px; }
         .tab-button.active { color: #38bdf8; }
+        .tab-content { display: none; padding: 20px; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
 
+    <div class="header">
+        <h1>🪙 مشروع عملة KAK</h1>
+    </div>
+
     <!-- 1. صفحة التعدين -->
     <div id="mining-page" class="tab-content active">
         <div class="card">
-            <h3>⚡ التعدين السحابي التلقائي</h3>
+            <h3>⚡ التعدين السحابي Tلقائي</h3>
             <p style="color: #94a3b8;">الباقة المجانية (10 KAK / يومياً)</p>
             <div class="balance" id="mining-counter">0.000000</div>
         </div>
@@ -48,7 +53,6 @@
         <div class="card">
             <h3>📋 المهام المدعومة</h3>
             <button class="btn" onclick="completeTask('telegram')">📢 انضم لقناة التليجرام (+100 KAK)</button>
-            <button class="btn" onclick="completeTask('x')">🐦 تابع حسابنا على X (+100 KAK)</button>
         </div>
     </div>
 
@@ -65,40 +69,46 @@
         </div>
         <div class="card">
             <h3>👥 نظام الإحالة</h3>
-            <input type="text" id="referral-link-box" class="input-box" readonly>
+            <input type="text" id="referral-link-box" class="input-box" readonly placeholder="جاري إنشاء الرابط...">
             <button class="btn btn-share" onclick="shareReferralLink()">🔗 دعوة صديق الآن</button>
         </div>
     </div>
 
-    <!-- شريط التبويبات -->
+    <!-- شريط التبويبات السفلي -->
     <nav class="nav-tabs">
         <button class="tab-button active" onclick="switchTab('mining-page', this)">⛏️ التعدين</button>
         <button class="tab-button" onclick="switchTab('tasks-page', this)">📺 المهام</button>
         <button class="tab-button" onclick="switchTab('wallet-page', this)">👛 المحفظة</button>
     </nav>
 
-    <!-- البرمجة الذكية والاغلاقات الرسمية -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // قراءة البيانات الموثقة بعد تفعيل الـ Main App بنجاح
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id : null;
+        
         const API_BASE_URL = window.location.origin; 
         const SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123"; 
 
         let sessionMined = 0.0;
         const ratePerSecond = 10 / 86400;
 
+        // إطلاق العداد والرابط فور قراءة الهوية بنجاح
         if (userId) {
+            // استخدام رابط الـ startapp الرسمي لتمرير الإحالات داخل التطبيقات المصغرة
             document.getElementById('referral-link-box').value = `https://t.me{userId}`;
+            
             setInterval(() => {
                 sessionMined += ratePerSecond;
                 document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
             }, 1000);
+            
             fetchUserBalance(); 
         } else {
-            document.getElementById('referral-link-box').value = "افتح التطبيق من تليجرام";
+            // في حال الفتح من متصفح خارجي للتجربة البصرية
+            document.getElementById('referral-link-box').value = "يرجى الفتح من تليجرام لتفعيل الرابط";
             setInterval(() => {
                 sessionMined += ratePerSecond;
                 document.getElementById('mining-counter').innerText = sessionMined.toFixed(6);
@@ -108,10 +118,13 @@
         function switchTab(tabId, buttonElement) {
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.style.display = 'none');
+            
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
+            
             document.getElementById(tabId).style.display = 'block';
             buttonElement.classList.add('active');
+            
             if(tabId === 'wallet-page' && userId) fetchUserBalance();
         }
 
@@ -132,13 +145,14 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: parseInt(userId), wallet: walletAddress, secret_key: SECRET_TOKEN })
             }).then(res => res.json()).then(data => {
-                if (data.status === "success") { alert("✅ تم تسجيل الطلب بنجاح!"); fetchUserBalance(); }
+                if (data.status === "success") { alert("✅ تم تسجيل طلب السحب بنجاح!"); fetchUserBalance(); }
             });
         }
 
         function shareReferralLink() {
             const refLink = document.getElementById('referral-link-box').value;
-            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم لتعدين KAK! ⛏️💎')}`);
+            if(!userId || refLink.includes("يرجى")) { alert("الرابط غير جاهز، افتح البوت من تليجرام."); return; }
+            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي لتعدين عملة KAK مجاناً! ⛏️💎')}`);
         }
 
         function watchAd() {
