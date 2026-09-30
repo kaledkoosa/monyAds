@@ -52,46 +52,86 @@ class AppWithdrawRequest(BaseModel):
     wallet: str
     secret_key: str
 
+class CreateAdRequest(BaseModel):
+    user_id: int
+    platform: str
+    url: str
+    clicks: int
+    cost: float
+    secret_key: str
+
 # 1. رابط جلب الرصيد الفعلي لعرضه بداخل التطبيق المصغر
 @app.get("/api/get_balance")
 async def get_user_balance(user_id: int):
     balance = db.get_user(user_id)
-    if balance is None:
+    if balance is None: 
         raise HTTPException(status_code=404, detail="المستخدم غير موجود")
     return {"status": "success", "balance": balance}
 
-# 2. رابط استقبال طلبات السحب من داخل التطبيق المصغر مباشرة
-@app.post("/api/app_withdraw")
-async def process_app_withdrawal(data: AppWithdrawRequest):
-    if data.secret_key != SECRET_TOKEN:
+# 2. الرابط البرمجي الجديد لمعالجة خصم العملات عند إنشاء إعلان من قِبل المستخدم
+@app.post("/api/create_ad")
+async def create_user_ad(data: CreateAdRequest):
+    if data.secret_key != SECRET_TOKEN: 
         raise HTTPException(status_code=403, detail="غير مصرح به")
     
     balance = db.get_user(data.user_id)
-    if balance is None:
-        raise HTTPException(status_code=404, detail="المستخدم غير موجود")
+    if balance is None or balance < data.cost:
+        raise HTTPException(status_code=400, detail="رصيدك الحالي غير كافٍ لتغطية تكلفة ميزانية الإعلان.")
     
-    if balance < 20000:
-        raise HTTPException(status_code=400, detail="رصيدك أقل من الحد الأدنى للسحب وهو 20,000 KAK")
-        
-    # تسجيل طلب السحب وخصم الرصيد يدوياً
-    db.create_withdrawal(data.user_id, data.wallet, balance, balance / 20000)
+    # خصم قيمة ميزانية الإعلان من حساب المستخدم المعلن في قاعدة البيانات
+    db.update_balance(data.user_id, -data.cost)
     
-    # إرسال إشعار فوري للمستخدم في الشات الخارجي لتأكيد استلام الطلب من التطبيق
+    # إرسال إشعار فوري وتفصيلي للأدمن ليراجع الإعلان ويوافق على نشره بالمنصة يدوياً
     try:
-        await bot.send_message(data.user_id, f"📥 **تم استلام طلب السحب من التطبيق المصغر بنجاح!**\n\n💰 المبلغ: `{balance} KAK`\n👛 المحفظة: `{data.wallet}`\n⏱ جاري المراجعة من قِبل الإدارة والدفع لـ Tonkeeper.")
+        await bot.send_message(
+            ADMIN_ID, 
+            f"🆕 **طلب حملة إعلانية جديدة للمراجعة!**\n\n"
+            f"👤 المعلن: `{data.user_id}`\n"
+            f"🌐 المنصة: {data.platform.upper()}\n"
+            f"🔗 الرابط المطلوب:\n{data.url}\n"
+            f"🎯 العدد المطلوب: {data.clicks} زيارة\n"
+            f"💰 التكلفة المخصومة: {data.cost} KAK"
+        )
     except Exception:
         pass
         
     return {"status": "success"}
 
-# 3. رابط استقبال طلبات تحديث الرصيد عند إكمال المهام أو مشاهدة الإعلانات
+# 3. رابط استقبال طلبات السحب والتبديل من داخل التطبيق المصغر مباشرة
+@app.post("/api/app_withdraw")
+async def process_app_withdrawal(data: AppWithdrawRequest):
+    if data.secret_key != SECRET_TOKEN: 
+        raise HTTPException(status_code=403, detail="غير مصرح به")
+    
+    balance = db.get_user(data.user_id)
+    if balance is None or balance < 20000: 
+        raise HTTPException(status_code=400, detail="الرصيد أقل من الحد الأدنى للسحب")
+        
+    db.create_withdrawal(data.user_id, data.wallet, balance, balance / 20000)
+    
+    try:
+        await bot.send_message(
+            data.user_id, 
+            f"📥 **تم تسجيل طلب السحب بنجاح!**\n\n"
+            f"💰 المبلغ: `{balance} KAK`\n"
+            f"👛 المحفظة: `{data.wallet}`\n"
+            f"⏱ سيتم معالجة الدفع يدوياً لـ Tonkeeper."
+        )
+    except Exception: 
+        pass
+        
+    return {"status": "success"}
+
+# 4. رابط استقبال طلبات تحديث الرصيد عند إكمال المهام ومجاهدة الإعلانات المدعومة
 @app.post("/api/reward")
 async def give_reward(data: RewardRequest):
-    if data.secret_key != SECRET_TOKEN:
+    if data.secret_key != SECRET_TOKEN: 
         raise HTTPException(status_code=403, detail="غير مصرح به")
+    
     user = db.get_user(data.user_id)
-    if user is None:
+    if user is None: 
         raise HTTPException(status_code=404, detail="المستخدم غير موجود")
+        
     db.update_balance(data.user_id, data.amount)
     return {"status": "success"}
 
@@ -104,12 +144,15 @@ async def start_command(message: types.Message, command: CommandObject):
     db.register_user(user_id, username, referrer_id)
     
     builder = InlineKeyboardBuilder()
-    builder.row(types.InlineKeyboardButton(text="⛏️ افتح تطبيق KAK Mining", web_app=types.WebAppInfo(url=f"{WEB_APP_URL}?user={user_id}")))
+    builder.row(types.InlineKeyboardButton(text="📢 افتح منصة KAK الإعلانية", web_app=types.WebAppInfo(url=f"{WEB_APP_URL}?user={user_id}")))
     
-    welcome = "مرحباً بك في بوت عملة **KAK** الرسمية! 🚀\n\nاضغط على الزر أدناه لفتح لوحة التعدين والمهام والمحفظة بشكل مدمج واحترافي تماماً بداخل تليجرام."
+    welcome = (
+        "مرحباً بك في منصة **KAK الإعلانية للميديا**! 🚀\n\n"
+        "اضغط على الزر أدناه لفتح لوحة التحكم وبدء الترويج لحساباتك وقنواتك على جميع المنصات الاجتماعية مجاناً من قِبل المستخدمين الآخرين!"
+    )
     await message.reply(welcome, reply_markup=builder.as_markup(), parse_mode="Markdown")
 
-# --- لوحة التحكم للأدمن (الإدارة اليدوية لطلبات السحب) ---
+# --- لوحة التحكم للأدمن (الإدارة اليدوية لطلبات السحب المالي) ---
 @dp.message(Command("admin"))
 async def admin_panel(message: types.Message):
     if message.from_user.id != ADMIN_ID: return
@@ -119,13 +162,17 @@ async def admin_panel(message: types.Message):
     requests = cursor.fetchall()
     conn.close()
     
-    if not requests: return await message.reply("📥 لا توجد طلبات سحب معلقة حالياً.")
+    if not requests: 
+        return await message.reply("📥 لا توجد طلبات سحب معلقة حالياً.")
     
     for req in requests:
         req_id, u_id, wallet, kak, usdt = req
         text = f"🆔 **طلب رقم:** #{req_id}\n👤 **المستخدم:** `{u_id}`\n🪙 **المبلغ:** {kak} KAK\n💵 **القيمة:** {usdt:.2f} \\$\n👛 **المحفظة:**\n`{wallet}`"
         builder = InlineKeyboardBuilder()
-        builder.row(types.InlineKeyboardButton(text="✅ تم الدفع وتأكيد السحب", callback_data=f"confirm_{req_id}"), types.InlineKeyboardButton(text="❌ إلغاء وإعادة الرصيد", callback_data=f"reject_{req_id}"))
+        builder.row(
+            types.InlineKeyboardButton(text="✅ تم الدفع وتأكيد السحب", callback_data=f"confirm_{req_id}"), 
+            types.InlineKeyboardButton(text="❌ إلغاء وإعادة الرصيد", callback_data=f"reject_{req_id}")
+        )
         await message.reply(text, reply_markup=builder.as_markup(), parse_mode="Markdown")
 
 @dp.callback_query(lambda c: c.data.startswith("confirm_") or c.data.startswith("reject_"))
@@ -138,7 +185,8 @@ async def handle_admin_action(callback: types.CallbackQuery):
     cursor = conn.cursor()
     cursor.execute("SELECT user_id, kak_amount FROM withdrawals WHERE id = ?", (req_id,))
     req_data = cursor.fetchone()
-    if not req_data: return conn.close()
+    if not req_data: 
+        return conn.close()
     user_id, kak_amount = req_data
     
     if action == "confirm":
@@ -147,7 +195,7 @@ async def handle_admin_action(callback: types.CallbackQuery):
     elif action == "reject":
         cursor.execute("UPDATE withdrawals SET status = 'REJECTED' WHERE id = ?", (req_id,))
         cursor.execute("UPDATE users SET balance = balance + ? WHERE user_id = ?", (kak_amount, user_id))
-        await bot.send_message(user_id, f"⚠️ **تم رفض طلب السحب.**\nتم إعادة رصيد وقدره `{kak_amount} KAK` لحسابك بالتطبيق.")
+        await bot.send_message(user_id, f"⚠️ **تم رفض طلب السحب.**\nتم إعادة رصيد وقدره `{kak_amount} KAK` لحسابك بالتطبيق ثانية.")
     conn.commit()
     conn.close()
     await callback.message.edit_text(f"✅ تم معالجة الإجراء بنجاح للطلب #{req_id}.")
