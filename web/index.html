@@ -3,135 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة KAK الإعلانية</title>
+    <title>منصة KAK</title>
     <script src="https://telegram.org"></script>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #0f172a; 
-            color: #f8fafc; 
-            margin: 0; 
-            padding: 0; 
-            padding-bottom: 80px; 
-            box-sizing: border-box;
-        }
-        .header { padding: 15px; text-align: center; background-color: #1e293b; border-bottom: 1px solid #334155; }
-        .header h1 { margin: 0; font-size: 1.5rem; color: #38bdf8; }
-        .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; }
+        body { font-family: sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; padding-bottom: 80px; text-align: center; }
+        .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
         .balance { font-size: 2.5rem; color: #38bdf8; font-weight: bold; margin: 10px 0; }
-        .input-box, .select-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; box-sizing: border-box; text-align: center; font-size: 1rem; }
-        .btn { background-color: #0284c7; color: white; border: none; padding: 14px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin: 8px 0; font-weight: bold; }
-        .btn:active { background-color: #0369a1; }
+        .input-box, .select-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; text-align: center; box-sizing: border-box; }
+        .btn { background-color: #0284c7; color: white; border: none; padding: 14px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin: 5px 0; font-weight: bold; }
         .btn-ad { background-color: #eab308; color: #0f172a; }
-        .btn-share { background-color: #10b981; }
-        .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background-color: #1e293b; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; z-index: 1000; }
-        .tab-button { background: none; border: none; color: #94a3b8; font-size: 0.85rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; flex-grow: 1; padding: 8px 0; font-weight: bold; }
+        .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background-color: #1e293b; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; }
+        .tab-button { background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; font-weight: bold; }
         .tab-button.active { color: #38bdf8; }
-        .tab-content { display: none; padding: 20px; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
-        label { display: block; text-align: right; margin-top: 10px; color: #94a3b8; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>📢 منصة KAK الإعلانية للميديا</h1>
-    </div>
-
-    <!-- 1. صفحة إنشاء الإعلانات الجديدة -->
+    <!-- 1. صفحة إنشاء الإعلانات للمستخدمين -->
     <div id="create-ad-page" class="tab-content active">
         <div class="card">
-            <h3>🚀 روج لحساباتك وقنواتك الآن</h3>
-            <p style="color: #94a3b8; font-size: 0.9rem;">أنشئ حملتك الإعلانية واجعل آلاف المستخدمين يزورون رابطك مقابل عملة KAK</p>
-            
-            <label>اختر المنصة الاجتماعية:</label>
+            <h3>📢 أنشئ حملتك الإعلانية</h3>
             <select id="ad-platform" class="select-box">
-                <option value="telegram">📢 قناة / جروب تليجرام</option>
-                <option value="facebook">📘 حساب / صفحة فيسبوك</option>
-                <option value="instagram">📸 حساب إنستغرام</option>
-                <option value="tiktok">🎵 تيك توك</option>
-                <option value="youtube">📺 قناة يوتيوب</option>
+                <option value="telegram">تليجرام</option>
+                <option value="facebook">فيسبوك</option>
+                <option value="instagram">إنستغرام</option>
             </select>
-
-            <label>رابط الحساب أو الحملة الإعلانية:</label>
-            <input type="url" id="ad-url" class="input-box" placeholder="https://t.me">
-
-            <label>عدد الزيارات المطلوبة (1 زيارة = 50 KAK):</label>
-            <input type="number" id="ad-clicks" class="input-box" placeholder="مثال: 100" min="10">
-
-            <button class="btn" onclick="publishUserAd()">✨ إطلاق الحملة الإعلانية فوراً</button>
+            <input type="url" id="ad-url" class="input-box" placeholder="رابط حسابك الاجتماعي">
+            <input type="number" id="ad-clicks" class="input-box" placeholder="عدد الزيارات المطلوبة (الزيارة = 50 KAK)">
+            <button class="btn" onclick="publishUserAd()">🚀 إطلاق الحملة الآن</button>
         </div>
     </div>
 
-    <!-- 2. صفحة كسب العملات (المهام والإعلانات) -->
+    <!-- 2. صفحة كسب العملات KAK -->
     <div id="tasks-page" class="tab-content">
         <div class="card">
-            <h3>📺 مشاهدة الإعلانات الممولة</h3>
-            <button class="btn btn-ad" onclick="watchAd()">🎬 شاهد إعلان المطور واربح (+15 KAK)</button>
+            <h3>📺 إعلانات ممولة</h3>
+            <button class="btn btn-ad" onclick="watchAd()">🎬 شاهد إعلان المطور (+15 KAK)</button>
         </div>
         <div class="card">
-            <h3>📋 مهام المنصة الرسمية</h3>
-            <button class="btn" onclick="completeTask('channel')">📢 انضم لقناتنا الرسمية (+100 KAK)</button>
-            <button class="btn" onclick="completeTask('group')">💬 انضم لمجموعة الدردشة (+100 KAK)</button>
+            <h3>📋 المهام الرسمية</h3>
+            <button class="btn" onclick="completeTask('channel')">📢 انضم للقناة الرسمية (+100 KAK)</button>
         </div>
     </div>
 
-    <!-- 3. صفحة المحفظة ونظام الإحالة -->
+    <!-- 3. صفحة المحفظة والإحالة -->
     <div id="wallet-page" class="tab-content">
         <div class="card">
-            <h3>💰 رصيدك المالي الحالي</h3>
+            <h3>💰 رصيدك الحالي</h3>
             <div class="balance"><span id="live-user-balance">0.00</span> KAK</div>
-            <p style="color: #94a3b8; font-size: 0.9rem;">يمكنك استخدام الرصيد في سحب الأرباح أو إنشاء إعلاناتك الخاصة.</p>
         </div>
         <div class="card">
-            <h3>💳 تبديل الرصيد والسحب إلى Tonkeeper</h3>
-            <input type="text" id="wallet-input" class="input-box" placeholder="أدخل عنوان محفظة TON">
-            <button class="btn" onclick="requestWithdrawalFromApp()">🔄 تبديل وسحب الرصيد بالكامل</button>
+            <h3>💳 السحب إلى Tonkeeper</h3>
+            <input type="text" id="wallet-input" class="input-box" placeholder="عنوان محفظة TON">
+            <button class="btn" onclick="requestWithdrawalFromApp()">🔄 تبديل وسحب الرصيد</button>
         </div>
         <div class="card">
             <h3>👥 نظام الإحالة</h3>
             <input type="text" id="referral-link-box" class="input-box" readonly placeholder="جاري إنشاء الرابط...">
-            <button class="btn btn-share" onclick="shareReferralLink()">🔗 دعوة صديق الآن</button>
+            <button class="btn" onclick="shareReferralLink()">🔗 دعوة صديق الآن</button>
         </div>
     </div>
 
-    <!-- شريط التبويبات السفلي المحدث بالتسميات الجديدة -->
+    <!-- شريط التبويبات السفلي -->
     <nav class="nav-tabs">
-        <button class="tab-button active" onclick="switchTab('create-ad-page', this)">📢 أنشئ إعلان</button>
-        <button class="tab-button" onclick="switchTab('tasks-page', this)">📺 اكسب KAK</button>
-        <button class="tab-button" onclick="switchTab('wallet-page', this)">👛 المحفظة</button>
+        <button class="tab-button active" onclick="switchTab('create-ad-page', this)">📢 إعلان</button>
+        <button class="tab-button" onclick="switchTab('tasks-page', this)">📺 كسب</button>
+        <button class="tab-button" onclick="switchTab('wallet-page', this)">👛 محفظة</button>
     </nav>
 
+    <!-- البرمجة الذكية وإغلاق الأوسمة الإلزامية بالأسفل -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const user = tg.initDataUnsafe?.user;
         const userId = user ? user.id : null;
-        
         const API_BASE_URL = window.location.origin; 
         const SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123"; 
-
-        const CHANNEL_LINK = "https://t.me"; // ⚠️ قم بتغيير معرف قناتك هنا
-        const GROUP_LINK = "https://t.me";     // ⚠️ قم بتغيير معرف جروبك هنا
 
         if (userId) {
             document.getElementById('referral-link-box').value = `https://t.me{userId}`;
             fetchUserBalance(); 
         } else {
-            document.getElementById('referral-link-box').value = "يرجى الفتح من تليجرام لتفعيل الرابط";
+            document.getElementById('referral-link-box').value = "افتح التطبيق من تليجرام لتفعيل الرابط";
         }
 
         function switchTab(tabId, buttonElement) {
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.style.display = 'none');
-            
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
-            
             document.getElementById(tabId).style.display = 'block';
             buttonElement.classList.add('active');
-            
             if(userId) fetchUserBalance();
         }
 
@@ -141,55 +106,64 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === "success") document.getElementById('live-user-balance').innerText = data.balance.toFixed(2);
-            }).catch(err => console.error(err));
+            });
         }
 
         function publishUserAd() {
             const platform = document.getElementById('ad-platform').value;
             const url = document.getElementById('ad-url').value.trim();
             const clicks = parseInt(document.getElementById('ad-clicks').value);
+            if (!url.startsWith("http")) { alert("يرجى إدخال رابط صحيح!"); return; }
+            if (isNaN(clicks) || clicks < 10) { alert("الحد الأدنى 10 زيارات."); return; }
+            const cost = clicks * 50;
 
-            if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                alert("❌ يرجى إدخال رابط صحيح يبدأ بـ https://");
-                return;
-            }
-            if (isNaN(clicks) || clicks < 10) {
-                alert("❌ الحد الأدنى للحملة هو 10 زيارات.");
-                return;
-            }
-
-            const cost = clicks * 50; 
-
-            if (confirm(`تكلفة هذه الحملة هي ${cost} KAK. هل تود التأكيد والخصم من رصيدك؟`)) {
+            if (confirm(`تكلفة الحملة هي ${cost} KAK. هل تود التأكيد؟`)) {
                 fetch(`${API_BASE_URL}/api/create_ad`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ user_id: parseInt(userId), platform: platform, url: url, clicks: clicks, cost: cost, secret_key: SECRET_TOKEN })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        alert("🎉 تم إنشاء وإطلاق حملتك الإعلانية بنجاح! سيتم مراجعته يدوياً بواسطة الإدارة وعرضها قريباً.");
-                        fetchUserBalance();
-                    } else {
-                        alert("❌ خطأ: " + data.detail);
-                    }
-                }).catch(err => alert("حدث خطأ، تأكد من شحن حسابك بالعملات الكافية للميزانية."));
+                }).then(res => res.json()).then(data => {
+                    if (data.status === "success") { alert("🎉 تم إطلاق حملتك بنجاح!"); fetchUserBalance(); }
+                    else { alert("خطأ: " + data.detail); }
+                }).catch(() => alert("رصيدك غير كافٍ."));
             }
         }
 
         function requestWithdrawalFromApp() {
-            const walletAddress = document.getElementById('wallet-input').value.trim();
-            if (!walletAddress || walletAddress.length < 40) { alert("عنوان المحفظة غير صحيح!"); return; }
+            const wallet = document.getElementById('wallet-input').value.trim();
+            if (!wallet || wallet.length < 40) { alert("عنوان المحفظة غير صحيح!"); return; }
             fetch(`${API_BASE_URL}/api/app_withdraw`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_id: parseInt(userId), wallet: walletAddress, secret_key: SECRET_TOKEN })
+                body: JSON.stringify({ user_id: parseInt(userId), wallet: wallet, secret_key: SECRET_TOKEN })
             }).then(res => res.json()).then(data => {
-                if (data.status === "success") { alert("✅ تم تسجيل طلب السحب بنجاح!"); fetchUserBalance(); }
+                if (data.status === "success") { alert("✅ تم تسجيل طلب السحب!"); fetchUserBalance(); }
             });
         }
 
         function shareReferralLink() {
             const refLink = document.getElementById('referral-link-box').value;
-            if(!userId) { alert("الرابط غير جاهز."); return; }
+            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي لمنصة KAK الإعلانية وسوّق لحساباتك! 📢🚀')}`);
+        }
+
+        function watchAd() {
+            alert("انتظر 5 ثوانٍ...");
+            setTimeout(() => { alert("✨ حصلت على 15 KAK"); sendRewardToBackend(15); }, 5000);
+        }
+
+        function completeTask(type) {
+            tg.openTelegramLink("https://t.me"); // ⚠️ غير الرابط هنا
+            setTimeout(() => { alert("✅ حصلت على 100 KAK"); sendRewardToBackend(100); }, 4000);
+        }
+
+        function sendRewardToBackend(amount) {
+            if (!userId) return;
+            fetch(`${API_BASE_URL}/api/reward`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_id: parseInt(userId), amount: parseFloat(amount), secret_key: SECRET_TOKEN })
+            }).then(() => fetchUserBalance());
+        }
+    </script>
+</body>
+</html>
