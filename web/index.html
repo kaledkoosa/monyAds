@@ -27,6 +27,7 @@
             box-sizing: border-box;
         }
 
+        /* التصاميم العامة والبطاقات الاحترافية */
         .card { 
             background-color: var(--bg-card); 
             border-radius: 16px; 
@@ -56,6 +57,7 @@
         }
         .input-box:focus, .select-box:focus { border-color: var(--accent-blue); }
 
+        /* الأزرار المطورة */
         .btn { 
             background-color: var(--accent-blue); 
             color: white; 
@@ -76,6 +78,7 @@
         .btn-deposit { background-color: var(--accent-green); }
         .btn-ad { background-color: var(--accent-yellow); color: #0b0f19; }
 
+        /* أقسام صفحة الكسب */
         .section-title {
             font-size: 0.9rem;
             color: var(--accent-blue);
@@ -88,6 +91,7 @@
             gap: 6px;
         }
 
+        /* صندوق الإحالة الأنيق */
         .referral-container {
             display: flex;
             gap: 8px;
@@ -96,6 +100,7 @@
         .referral-container .input-box { margin: 0; flex: 1; text-align: left; direction: ltr; font-family: monospace; }
         .referral-container .btn { width: auto; padding: 0 20px; }
 
+        /* المحفظة الأنيقة المماثلة للمشاريع الكبرى */
         .wallet-card {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -116,6 +121,7 @@
         .wallet-actions { display: flex; gap: 12px; margin-top: 20px; }
         .wallet-actions .btn { flex: 1; padding: 12px; font-size: 0.9rem; }
 
+        /* شريط التبويبات السفلي الاحترافي */
         .nav-tabs { 
             position: fixed; bottom: 0; left: 0; right: 0; height: 70px; 
             background-color: rgba(21, 28, 44, 0.95); 
@@ -165,8 +171,9 @@
         </div>
     </div>
 
-    <!-- 📺 تبويب: كسب TON -->
+    <!-- 📺 تبويب: كسب TON (دمج التعدين، الإعلانات، المهام والإحالات) -->
     <div id="tasks-page" class="tab-content">
+        <!-- قسم الإحالة المدمج حديثاً هنا بنفس الصفحة -->
         <div class="card">
             <h3><i class="fa-solid fa-user-plus"></i> نظام الإحالة الفوري</h3>
             <p>شارك رابط الإحالة الخاص بك واكسب عملات TON مجانية مباشرة بمجرد دخول أصدقائك للبوت.</p>
@@ -200,7 +207,7 @@
         </div>
     </div>
 
-    <!-- 👛 تبويب: المحفظة -->
+    <!-- 👛 تبويب: المحفظة الاحترافية والأنيقة -->
     <div id="wallet-page" class="tab-content">
         <div class="wallet-card">
             <div class="wallet-label">إجمالي الرصيد المتوفر</div>
@@ -210,9 +217,5 @@
             </div>
             <div class="wallet-actions">
                 <button class="btn btn-deposit" onclick="depositInstructions()"><i class="fa-solid fa-circle-plus"></i> شحن رصيد</button>
-                <button class="btn" style="background-color: rgba(255,255,255,0.05); color: white;" onclick="switchTab('create-ad-page', document.querySelector('.nav-tabs button:first-child'))"><i class="fa-solid fa-bullhorn"></i> إنشاء إعلان</button>
-            </div>
-        </div>
-
-        <div class="card" style="margin-top: 20px;">
-            <h3><i class="fa-solid fa-money-bill-transfer"></i> سحب فوري إلى محفظة Tonkeeper</h3>
+    </script>
+</body></html>
