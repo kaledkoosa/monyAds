@@ -5,197 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة TON الإعلانية</title>
     <script src="https://telegram.org"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
-        body { font-family: sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; padding-bottom: 80px; text-align: center; }
-        .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
-        .balance { font-size: 2.5rem; color: #0284c7; font-weight: bold; margin: 10px 0; }
-        .input-box, .select-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; text-align: center; box-sizing: border-box; }
-        .btn { background-color: #0284c7; color: white; border: none; padding: 14px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin: 5px 0; font-weight: bold; }
-        .btn-deposit { background-color: #10b981; }
-        .btn-ad { background-color: #eab308; color: #0f172a; }
-        .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background-color: #1e293b; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; }
-        .tab-button { background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; font-weight: bold; }
-        .tab-button.active { color: #38bdf8; }
-        .tab-content { display: none; }
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #151c2c;
+            --accent-blue: #0098ea;
+            --accent-green: #00bfa6;
+            --accent-yellow: #f5a623;
+            --text-white: #f8fafc;
+            --text-muted: #64748b;
+        }
+
+        body { 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background-color: var(--bg-main); 
+            color: var(--text-white); 
+            margin: 0; 
+            padding: 20px; 
+            padding-bottom: 90px; 
+            box-sizing: border-box;
+        }
+
+        .card { 
+            background-color: var(--bg-card); 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            text-align: right;
+        }
+
+        h3 { margin-top: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; color: var(--text-white); }
+        h3 i { color: var(--accent-blue); }
+        p { color: var(--text-muted); font-size: 0.85rem; margin: 5px 0 15px 0; line-height: 1.4; }
+
+        .input-box, .select-box { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            background-color: #0b0f19; 
+            color: white; 
+            margin: 10px 0; 
+            box-sizing: border-box; 
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        .input-box:focus, .select-box:focus { border-color: var(--accent-blue); }
+
+        .btn { 
+            background-color: var(--accent-blue); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            font-size: 1rem; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-weight: bold; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-deposit { background-color: var(--accent-green); }
+        .btn-ad { background-color: var(--accent-yellow); color: #0b0f19; }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 10px 0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .referral-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .referral-container .input-box { margin: 0; flex: 1; text-align: left; direction: ltr; font-family: monospace; }
+        .referral-container .btn { width: auto; padding: 0 20px; }
+
+        .wallet-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .wallet-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,152,234,0.08) 0%, transparent 70%); pointer-events: none;
+        }
+        .wallet-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .balance-container { margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .balance-container i { font-size: 2rem; color: var(--accent-blue); }
+        .balance { font-size: 2.8rem; font-weight: 800; color: white; letter-spacing: -1px; }
+        .wallet-actions { display: flex; gap: 12px; margin-top: 20px; }
+        .wallet-actions .btn { flex: 1; padding: 12px; font-size: 0.9rem; }
+
+        .nav-tabs { 
+            position: fixed; bottom: 0; left: 0; right: 0; height: 70px; 
+            background-color: rgba(21, 28, 44, 0.95); 
+            backdrop-filter: blur(10px);
+            display: flex; justify-content: space-around; align-items: center; 
+            border-top: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+            z-index: 100;
+        }
+        .tab-button { 
+            background: none; border: none; color: #64748b; 
+            font-size: 0.8rem; cursor: pointer; font-weight: 500; 
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            transition: 0.2s;
+        }
+        .tab-button i { font-size: 1.25rem; }
+        .tab-button.active { color: var(--accent-blue); font-weight: bold; }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- التبويب الأول: ترويج -->
+    <!-- 📢 تبويب: ترويج -->
     <div id="create-ad-page" class="tab-content active">
         <div class="card">
-            <h3>📢 إطلاق حملة ترويجية بـ TON</h3>
-            <p style="color: #94a3b8; font-size: 0.85rem;">التكلفة الثابتة للزيارة الواحدة = 0.003 TON (الحد الأدنى 100 زيارة)</p>
+            <h3><i class="fa-solid fa-bullhorn"></i> إطلاق حملة ترويجية بـ TON</h3>
+            <p>أعلن عن حساباتك وقنواتك لآلاف المستخدمين الحقيقيين بالمنصة.<br>التكلفة: 0.003 TON لكل زيارة (الحد الأدنى 100 زيارة)</p>
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">اختر منصة الإعلان</label>
             <select id="ad-platform" class="select-box">
-                <option value="telegram">📢 قناة / جروب تليجرام</option>
-                <option value="facebook">📘 صفحة فيسبوك</option>
-                <option value="instagram">📸 حساب إنستغرام</option>
+                <option value="telegram">قناة / جروب تليجرام</option>
+                <option value="facebook">صفحة فيسبوك</option>
+                <option value="instagram">حساب إنستغرام</option>
             </select>
-            <input type="url" id="ad-url" class="input-box" placeholder="رابط الحساب الاجتماعي يبدأ بـ https://">
-            <input type="number" id="ad-clicks" class="input-box" placeholder="عدد الزيارات المطلوبة (أقل شيء 100)" min="100">
-            <button class="btn" onclick="publishUserAd()">🚀 إطلاق الحملة الممولة</button>
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">رابط الإعلان</label>
+            <input type="url" id="ad-url" class="input-box" placeholder="https://t.me">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">عدد الزيارات المطلوبة</label>
+            <input type="number" id="ad-clicks" class="input-box" placeholder="أقل كمية هي 100 زيارة" min="100">
+            
+            <button class="btn" onclick="publishUserAd()"><i class="fa-solid fa-rocket"></i> خصم الميزانية وإطلاق الحملة</button>
         </div>
     </div>
 
-    <!-- التبويب الثاني: المهام والربح -->
+    <!-- 📺 تبويب: كسب TON -->
     <div id="tasks-page" class="tab-content">
         <div class="card">
-            <h3>📺 مشاهدة الإعلانات</h3>
-            <button class="btn btn-ad" onclick="watchAd()">🎬 شاهد إعلان واربح (+0.002 TON)</button>
+            <h3><i class="fa-solid fa-user-plus"></i> نظام الإحالة الفوري</h3>
+            <p>شارك رابط الإحالة الخاص بك واكسب عملات TON مجانية مباشرة بمجرد دخول أصدقائك للبوت.</p>
+            <div class="referral-container">
+                <input type="text" id="referral-link-box" class="input-box" readonly>
+                <button class="btn" onclick="shareReferralLink()"><i class="fa-solid fa-paper-plane"></i> دعوة</button>
+            </div>
         </div>
+
+        <div class="section-title"><i class="fa-solid fa-circle-play"></i> مهام مشاهدة الإعلانات</div>
         <div class="card">
-            <h3>📋 مهام تليجرام</h3>
-            <button class="btn" onclick="completeTask()">📢 انضم للقناة الرسمية (+0.05 TON)</button>
+            <h3>شاهد الإعلان الدوري</h3>
+            <p>قم بفتح الإعلان الممول والانتظار 5 ثوانٍ فقط لتجميع العملات الحقيقية بمحفظتك.</p>
+            <button class="btn btn-ad" onclick="watchAd()"><i class="fa-solid fa-play"></i> شاهد واربح (+0.002 TON)</button>
+        </div>
+
+        <div class="section-title"><i class="fa-solid fa-circle-check"></i> المهام الرسمية للمنصة</div>
+        <div class="card">
+            <h3>الانضمام لقناة المنصة الرسمية</h3>
+            <p>تابع كافة التحديثات والأخبار الخاصة بالتطبيق لتأهيل حسابك واستلام السحوبات يدويّاً.</p>
+            <button class="btn" onclick="completeTask()"><i class="fa-brands fa-telegram"></i> انضم الآن (+0.01 TON)</button>
+        </div>
+
+        <div class="section-title"><i class="fa-solid fa-users"></i> مهام المروجين والمستخدمين</div>
+        <div id="promoters-tasks-container">
+            <div class="card" style="border-left: 3px solid var(--accent-blue);">
+                <h3>زيارة قنوات المروجين قيد المراجعة</h3>
+                <p>هذا المكان مخصص لظهور إعلانات وقنوات المستخدمين الآخرين بمجرد الموافقة عليها من الأدمن.</p>
+                <button class="btn" style="background-color: #243146; color: #94a3b8;" disabled><i class="fa-solid fa-clock"></i> جاري تحديث الحملات</button>
+            </div>
         </div>
     </div>
 
-    <!-- التبويب الثالث: المحفظة -->
+    <!-- 👛 تبويب: المحفظة -->
     <div id="wallet-page" class="tab-content">
-        <div class="card">
-            <h3>👛 رصيدك الفعلي المتوفر</h3>
-            <div class="balance"><span id="live-user-balance">0.000</span> TON</div>
-            <p style="color: #94a3b8; font-size: 0.85rem;">الحد الأدنى لطلب السحب الفوري هو 0.20 TON</p>
+        <div class="wallet-card">
+            <div class="wallet-label">إجمالي الرصيد المتوفر</div>
+            <div class="balance-container">
+                <i class="fa-solid fa-wallet"></i>
+                <div class="balance"><span id="live-user-balance">0.000</span> <span style="font-size: 1.5rem; font-weight: 500;">TON</span></div>
+            </div>
+            <div class="wallet-actions">
+                <button class="btn btn-deposit" onclick="depositInstructions()"><i class="fa-solid fa-circle-plus"></i> شحن رصيد</button>
+                <button class="btn" style="background-color: rgba(255,255,255,0.05); color: white;" onclick="switchTab('create-ad-page', document.querySelector('.nav-tabs button:first-child'))"><i class="fa-solid fa-bullhorn"></i> إنشاء إعلان</button>
+            </div>
         </div>
-        
-        <div class="card">
-            <h3>💳 شحن الرصيد لتفعيل الإعلانات</h3>
-            <button class="btn btn-deposit" onclick="depositInstructions()">➕ إيداع رصيد TON جديد</button>
-        </div>
 
-        <div class="card">
-            <h3>💳 طلب السحب مباشر إلى Tonkeeper</h3>
-            <input type="text" id="wallet-input" class="input-box" placeholder="أدخل عنوان محفظة TON الخاصة بك">
-            <button class="btn" onclick="requestWithdrawalFromApp()">🔄 سحب رصيد TON بالكامل</button>
-        </div>
-        
-        <div class="card">
-            <h3>👥 نظام الإحالة (اكسب 0.01 TON لكل صديق)</h3>
-            <input type="text" id="referral-link-box" class="input-box" readonly>
-            <button class="btn" onclick="shareReferralLink()">🔗 دعوة صديق الآن</button>
-        </div>
-    </div>
-
-    <!-- شريط القائمة السفلي -->
-    <nav class="nav-tabs">
-        <button class="tab-button active" onclick="switchTab('create-ad-page', this)">📢 ترويج</button>
-        <button class="tab-button" onclick="switchTab('tasks-page', this)">📺 كسب TON</button>
-        <button class="tab-button" onclick="switchTab('wallet-page', this)">👛 المحفظة</button>
-    </nav>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        const user = tg.initDataUnsafe?.user;
-        const userId = user ? user.id : null;
-        const API_BASE_URL = window.location.origin; 
-        
-        const CUSTOM_HEADER_KEY = "MY_SUPER_SECRET_KEY_123"; 
-
-        if (userId) {
-            document.getElementById('referral-link-box').value = `https://t.me{userId}`;
-            fetchUserBalance(); 
-        } else {
-            document.getElementById('referral-link-box').value = "افتح التطبيق من تليجرام لتفعيل الرابط";
-        }
-
-        function switchTab(tabId, buttonElement) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => content.style.display = 'none');
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).style.display = 'block';
-            buttonElement.classList.add('active');
-            if(userId) fetchUserBalance();
-        }
-
-        function fetchUserBalance() {
-            if (!userId) return;
-            fetch(`${API_BASE_URL}/api/get_balance?user_id=${userId}`)
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === "success") document.getElementById('live-user-balance').innerText = data.balance.toFixed(3);
-            }).catch(err => console.log("خطأ في الاتصال بالخادم الرئيسي"));
-        }
-
-        function depositInstructions() {
-            alert("📥 إرشادات الإيداع اليدوي:\n\nقم بنسخ محفظة الأدمن الرسمية وتحويل القيمة المطلوبة من محفظة Tonkeeper، ثم تواصل مع المطور لشحن رصيد إعلاناتك فوراً.");
-        }
-
-        function publishUserAd() {
-            const platform = document.getElementById('ad-platform').value;
-            const url = document.getElementById('ad-url').value.trim();
-            const clicks = parseInt(document.getElementById('ad-clicks').value);
-            
-            if (!url.startsWith("http")) { alert("يرجى إدخل رابط صحيح يبدأ بـ http!"); return; }
-            if (isNaN(clicks) || clicks < 100) { alert("⚠️ الحد الأدنى للترويج هو 100 زيارة."); return; }
-            
-            const calculatedCost = clicks * 0.003;
-
-            if (confirm(`تكلفة الحملة الإعلانية لـ ${clicks} زيارة هي ${calculatedCost.toFixed(3)} TON. هل تود الخصم الفوري؟`)) {
-                fetch(`${API_BASE_URL}/api/create_ad`, {
-                    method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "x-secret-token": CUSTOM_HEADER_KEY 
-                    },
-                    body: JSON.stringify({ user_id: parseInt(userId), platform: platform, url: url, clicks: clicks, cost: calculatedCost })
-                }).then(res => res.json()).then(data => {
-                    if (data.status === "success") { alert("🎉 تم خصم الميزانية وإرسال الإعلان للمراجعة!"); fetchUserBalance(); }
-                    else { alert("خطأ: " + data.detail); }
-                }).catch(() => alert("عذراً، رصيدك غير كافٍ أو أن السيرفر غير متصل."));
-            }
-        }
-
-        function requestWithdrawalFromApp() {
-            const wallet = document.getElementById('wallet-input').value.trim();
-            if (!wallet || wallet.length < 40) { alert("عنوان محفظة TON غير صحيح!"); return; }
-            fetch(`${API_BASE_URL}/api/app_withdraw`, {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "x-secret-token": CUSTOM_HEADER_KEY
-                },
-                body: JSON.stringify({ user_id: parseInt(userId), wallet: wallet })
-            }).then(res => res.json()).then(data => {
-                if (data.status === "success") { alert("✅ تم تسجيل طلب السحب الفوري لـ Tonkeeper!"); fetchUserBalance(); }
-                else { alert("خطأ: " + data.detail); }
-            }).catch(() => alert("تأكد من بلوغ الحد الأدنى للسحب 0.20 TON."));
-        }
-
-        function shareReferralLink() {
-            const refLink = document.getElementById('referral-link-box').value;
-            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي لمنصة TON الإعلانية واكسب العملات مجاناً! 📢🚀')}`);
-        }
-
-        function watchAd() {
-            alert("انتظر 5 ثوانٍ لمشاهدة الإعلان وحساب المكافأة...");
-            setTimeout(() => { 
-                alert("✨ تهانينا! كسبت 0.002 TON"); 
-                sendRewardToBackend(0.002); 
-            }, 5000);
-        }
-
-        function completeTask() {
-            tg.openTelegramLink("https://t.me"); 
-            setTimeout(() => { 
-                alert("✅ حصلت على 0.05 TON"); 
-                sendRewardToBackend(0.05); 
-            }, 4000);
-        }
-
-        function sendRewardToBackend(amount) {
-            if (!userId) return;
-            fetch(`${API_BASE_URL}/api/reward`, {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "x-secret-token": CUSTOM_HEADER_KEY
-                },
-                body: JSON.stringify({ user_id: parseInt(userId), amount: parseFloat(amount) })
-            }).then(() => fetchUserBalance());
-        }
-    </script>
-</body>
-</html>
+        <div class="card" style="margin-top: 20px;">
+            <h3><i class="fa-solid fa-money-bill-transfer"></i> سحب فوري إلى محفظة Tonkeeper</h3>
