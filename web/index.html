@@ -38,7 +38,7 @@
         <h1>📢 منصة KAK الإعلانية للميديا</h1>
     </div>
 
-    <!-- 1. صفحة إنشاء الإعلانات الجديدة المستبدلة للتعدين -->
+    <!-- 1. صفحة إنشاء الإعلانات الجديدة -->
     <div id="create-ad-page" class="tab-content active">
         <div class="card">
             <h3>🚀 روج لحساباتك وقنواتك الآن</h3>
@@ -112,8 +112,8 @@
         const API_BASE_URL = window.location.origin; 
         const SECRET_TOKEN = "MY_SUPER_SECRET_KEY_123"; 
 
-        const CHANNEL_LINK = "https://t.me/T_ONo"; // ⚠️ استبدلها برابط قناتك الحقيقي
-        const GROUP_LINK = "https://t.me/T_ONo";     // ⚠️ استبدلها برابط مجموعتك الحقيقي
+        const CHANNEL_LINK = "https://t.me"; // ⚠️ قم بتغيير معرف قناتك هنا
+        const GROUP_LINK = "https://t.me";     // ⚠️ قم بتغيير معرف جروبك هنا
 
         if (userId) {
             document.getElementById('referral-link-box').value = `https://t.me{userId}`;
@@ -141,10 +141,9 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === "success") document.getElementById('live-user-balance').innerText = data.balance.toFixed(2);
-            });
+            }).catch(err => console.error(err));
         }
 
-        // دالة إرسال الإعلان المخصص من المستخدم للسيرفر وخصم الرصيد منه
         function publishUserAd() {
             const platform = document.getElementById('ad-platform').value;
             const url = document.getElementById('ad-url').value.trim();
@@ -159,7 +158,7 @@
                 return;
             }
 
-            const cost = clicks * 50; // تكلفة الحملة الإعلانية الإجمالية لعملة KAK
+            const cost = clicks * 50; 
 
             if (confirm(`تكلفة هذه الحملة هي ${cost} KAK. هل تود التأكيد والخصم من رصيدك؟`)) {
                 fetch(`${API_BASE_URL}/api/create_ad`, {
@@ -170,12 +169,12 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "success") {
-                        alert("🎉 تم إنشاء وإطلاق حملتك الإعلانية بنجاح! سيتم مراجعتها وعرضها للمستخدمين.");
+                        alert("🎉 تم إنشاء وإطلاق حملتك الإعلانية بنجاح! سيتم مراجعته يدوياً بواسطة الإدارة وعرضها قريباً.");
                         fetchUserBalance();
                     } else {
                         alert("❌ خطأ: " + data.detail);
                     }
-                }).catch(err => alert("رصيدك غير كافٍ لإتمام ميزانية الحملة."));
+                }).catch(err => alert("حدث خطأ، تأكد من شحن حسابك بالعملات الكافية للميزانية."));
             }
         }
 
@@ -193,3 +192,4 @@
 
         function shareReferralLink() {
             const refLink = document.getElementById('referral-link-box').value;
+            if(!userId) { alert("الرابط غير جاهز."); return; }
