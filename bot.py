@@ -70,6 +70,8 @@ def verify_secret_auth(x_secret_token: str = Header(None)):
     if x_secret_token != SECRET_TOKEN:
         raise HTTPException(status_code=403, detail="غير مصرح به - مفتاح الحماية خاطئ")
 
+# --- مسارات الـ API (يجب تعريفها أولاً لتأخذ الأولوية) ---
+
 @app.get("/api/get_balance")
 async def get_user_balance(user_id: int):
     balance = db.get_user(user_id)
@@ -127,6 +129,8 @@ async def give_reward(data: RewardRequest, x_secret_token: str = Header(None)):
         raise HTTPException(status_code=404, detail="المستخدم غير موجود")
     db.update_balance(data.user_id, data.amount)
     return {"status": "success"}
+
+# --- أوامر البوت (Aiogram) ---
 
 @dp.message(Command("start"))
 async def start_command(message: types.Message, command: CommandObject):
@@ -188,7 +192,7 @@ async def handle_admin_action(callback: types.CallbackQuery):
         
     await callback.message.edit_text(f"✅ تم معالجة الطلب #{req_id}.")
 
-# --- السطر المعدل والمصحح لربط الواجهة الأمامية بالجذر الرئيسي ومسح خطأ الـ Not Found ---
+# --- ربط الواجهة الأمامية هنا في النهاية لحماية مسارات الـ API وعودة التنقل للعمل ---
 app.mount("/", StaticFiles(directory="web", html=True), name="web")
 
 polling_task = None
