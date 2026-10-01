@@ -91,7 +91,6 @@
         const userId = user ? user.id : null;
         const API_BASE_URL = window.location.origin; 
         
-        // توكن الحماية المدمج بالهيدر لتأمين الاتصال بالخادم
         const CUSTOM_HEADER_KEY = "MY_SUPER_SECRET_KEY_123"; 
 
         if (userId) {
@@ -129,7 +128,7 @@
             const url = document.getElementById('ad-url').value.trim();
             const clicks = parseInt(document.getElementById('ad-clicks').value);
             
-            if (!url.startsWith("http")) { alert("يرجى إدخال رابط صحيح يبدأ بـ http!"); return; }
+            if (!url.startsWith("http")) { alert("يرجى إدخل رابط صحيح يبدأ بـ http!"); return; }
             if (isNaN(clicks) || clicks < 100) { alert("⚠️ الحد الأدنى للترويج هو 100 زيارة."); return; }
             
             const calculatedCost = clicks * 0.003;
@@ -195,3 +194,8 @@
                     "x-secret-token": CUSTOM_HEADER_KEY
                 },
                 body: JSON.stringify({ user_id: parseInt(userId), amount: parseFloat(amount) })
+            }).then(() => fetchUserBalance());
+        }
+    </script>
+</body>
+</html>
