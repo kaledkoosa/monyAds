@@ -25,7 +25,7 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 app = FastAPI(title="TON Ads Platform Backend")
 
-# السماح بدومين السيرفر ونظام تشغيل تليجرام لتفادي ثغرات CORS Cross-Site
+# تقييد الـ CORS لضمان عدم استغلال بروتوكول الـ API من نطاقات خارجية
 app.add_middleware(
     CORSMiddleware, 
     allow_origins=[WEB_APP_URL, "https://html.tg"], 
@@ -187,6 +187,9 @@ async def handle_admin_action(callback: types.CallbackQuery):
         except Exception: pass
         
     await callback.message.edit_text(f"✅ تم معالجة الطلب #{req_id}.")
+
+# --- السطر المعدل والمصحح لربط الواجهة الأمامية بالجذر الرئيسي ومسح خطأ الـ Not Found ---
+app.mount("/", StaticFiles(directory="web", html=True), name="web")
 
 polling_task = None
 
