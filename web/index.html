@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة KAK</title>
+    <title>منصة TON الإعلانية</title>
     <script src="https://telegram.org"></script>
     <style>
         body { font-family: sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; padding-bottom: 80px; text-align: center; }
         .card { background-color: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
-        .balance { font-size: 2.5rem; color: #38bdf8; font-weight: bold; margin: 10px 0; }
+        .balance { font-size: 2.5rem; color: #0284c7; font-weight: bold; margin: 10px 0; }
         .input-box, .select-box { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background-color: #0f172a; color: white; margin: 10px 0; text-align: center; box-sizing: border-box; }
         .btn { background-color: #0284c7; color: white; border: none; padding: 14px 24px; font-size: 1rem; border-radius: 8px; cursor: pointer; width: 100%; margin: 5px 0; font-weight: bold; }
+        .btn-deposit { background-color: #10b981; }
         .btn-ad { background-color: #eab308; color: #0f172a; }
         .nav-tabs { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background-color: #1e293b; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #334155; }
         .tab-button { background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; font-weight: bold; }
@@ -24,56 +25,66 @@
     <!-- 1. صفحة إنشاء الإعلانات للمستخدمين -->
     <div id="create-ad-page" class="tab-content active">
         <div class="card">
-            <h3>📢 أنشئ حملتك الإعلانية</h3>
+            <h3>📢 إطلاق حملة ترويجية بـ TON</h3>
+            <p style="color: #94a3b8; font-size: 0.85rem;">التكلفة الثابتة للزيارة الواحدة = 0.003 TON (الحد الأدنى 100 زيارة)</p>
             <select id="ad-platform" class="select-box">
-                <option value="telegram">تليجرام</option>
-                <option value="facebook">فيسبوك</option>
-                <option value="instagram">إنستغرام</option>
+                <option value="telegram">📢 قناة / جروب تليجرام</option>
+                <option value="facebook">📘 صفحة فيسبوك</option>
+                <option value="instagram">📸 حساب إنستغرام</option>
             </select>
-            <input type="url" id="ad-url" class="input-box" placeholder="رابط حسابك الاجتماعي">
-            <input type="number" id="ad-clicks" class="input-box" placeholder="عدد الزيارات المطلوبة (الزيارة = 50 KAK)">
-            <button class="btn" onclick="publishUserAd()">🚀 إطلاق الحملة الآن</button>
+            <input type="url" id="ad-url" class="input-box" placeholder="رابط الحساب الاجتماعي يبدأ بـ https://">
+            <input type="number" id="ad-clicks" class="input-box" placeholder="عدد الزيارات المطلوبة (أقل شيء 100)" min="100">
+            <button class="btn" onclick="publishUserAd()">🚀 إطلاق الحملة الممولة</button>
         </div>
     </div>
 
-    <!-- 2. صفحة كسب العملات KAK -->
+    <!-- 2. صفحة كسب العملات KAK المحددة بنسبة الربح المطور -->
     <div id="tasks-page" class="tab-content">
         <div class="card">
-            <h3>📺 إعلانات ممولة</h3>
-            <button class="btn btn-ad" onclick="watchAd()">🎬 شاهد إعلان المطور (+15 KAK)</button>
+            <h3>📺 مشاهدة الإعلانات</h3>
+            <button class="btn btn-ad" onclick="watchAd()">🎬 شاهد إعلان واربح (+0.002 TON)</button>
         </div>
         <div class="card">
-            <h3>📋 المهام الرسمية</h3>
-            <button class="btn" onclick="completeTask('channel')">📢 انضم للقناة الرسمية (+100 KAK)</button>
+            <h3>📋 مهام تليجرام</h3>
+            <button class="btn" onclick="completeTask('channel')">📢 انضم للقناة الرسمية (+0.05 TON)</button>
         </div>
     </div>
 
-    <!-- 3. صفحة المحفظة والإحالة -->
+    <!-- 3. صفحة المحفظة (الرصيد - الإيداع - السحب مباشر) -->
     <div id="wallet-page" class="tab-content">
         <div class="card">
-            <h3>💰 رصيدك الحالي</h3>
-            <div class="balance"><span id="live-user-balance">0.00</span> KAK</div>
+            <h3>👛 رصيدك الفعلي المتوفر</h3>
+            <div class="balance"><span id="live-user-balance">0.000</span> TON</div>
+            <p style="color: #94a3b8; font-size: 0.85rem;">الحد الأدنى لطلب السحب الفوري هو 0.20 TON</p>
         </div>
+        
+        <!-- زر الإيداع المضاف للمعلن -->
         <div class="card">
-            <h3>💳 السحب إلى Tonkeeper</h3>
-            <input type="text" id="wallet-input" class="input-box" placeholder="عنوان محفظة TON">
-            <button class="btn" onclick="requestWithdrawalFromApp()">🔄 تبديل وسحب الرصيد</button>
+            <h3>💳 شحن الرصيد لتفعيل الإعلانات</h3>
+            <button class="btn btn-deposit" onclick="depositInstructions()">➕ إيداع رصيد TON جديد</button>
         </div>
+
         <div class="card">
-            <h3>👥 نظام الإحالة</h3>
-            <input type="text" id="referral-link-box" class="input-box" readonly placeholder="جاري إنشاء الرابط...">
+            <h3>💳 طلب السحب مباشر إلى Tonkeeper</h3>
+            <input type="text" id="wallet-input" class="input-box" placeholder="أدخل عنوان محفظة TON الخاصة بك">
+            <button class="btn" onclick="requestWithdrawalFromApp()">🔄 سحب رصيد TON بالكامل</button>
+        </div>
+        
+        <div class="card">
+            <h3>👥 نظام الإحالة (50 عملة وهمية مستبدلة بـ 0.01 TON)</h3>
+            <input type="text" id="referral-link-box" class="input-box" readonly>
             <button class="btn" onclick="shareReferralLink()">🔗 دعوة صديق الآن</button>
         </div>
     </div>
 
     <!-- شريط التبويبات السفلي -->
     <nav class="nav-tabs">
-        <button class="tab-button active" onclick="switchTab('create-ad-page', this)">📢 إعلان</button>
-        <button class="tab-button" onclick="switchTab('tasks-page', this)">📺 كسب</button>
-        <button class="tab-button" onclick="switchTab('wallet-page', this)">👛 محفظة</button>
+        <button class="tab-button active" onclick="switchTab('create-ad-page', this)">📢 ترويج</button>
+        <button class="tab-button" onclick="switchTab('tasks-page', this)">📺 كسب TON</button>
+        <button class="tab-button" onclick="switchTab('wallet-page', this)">👛 المحفظة</button>
     </nav>
 
-    <!-- البرمجة الذكية وإغلاق الأوسمة الإلزامية بالأسفل -->
+    <!-- البرمجة الفنية والإغلاق الإلزامي الكامل بالأسفل -->
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -105,27 +116,34 @@
             fetch(`${API_BASE_URL}/api/get_balance?user_id=${userId}`)
             .then(res => res.json())
             .then(data => {
-                if(data.status === "success") document.getElementById('live-user-balance').innerText = data.balance.toFixed(2);
+                if(data.status === "success") document.getElementById('live-user-balance').innerText = data.balance.toFixed(3);
             });
+        }
+
+        function depositInstructions() {
+            // وبما أنها يدوية، يمكنك توجيه المستخدم لإرسال الـ TON لمحفظتك وإشعار الأدمن
+            alert("📥 إرشادات الإيداع اليدوي:\n\nقم بنسخ محفظة الأدمن الرسمية وتحويل القيمة المطلوبة من Tonkeeper، ثم تواصل مع المطور لشحن حسابك فوراً بـ TON.");
         }
 
         function publishUserAd() {
             const platform = document.getElementById('ad-platform').value;
             const url = document.getElementById('ad-url').value.trim();
             const clicks = parseInt(document.getElementById('ad-clicks').value);
+            
             if (!url.startsWith("http")) { alert("يرجى إدخال رابط صحيح!"); return; }
-            if (isNaN(clicks) || clicks < 10) { alert("الحد الأدنى 10 زيارات."); return; }
-            const cost = clicks * 50;
+            if (isNaN(clicks) || clicks < 100) { alert("⚠️ الحد الأدنى للترويج هو 100 زيارة."); return; }
+            
+            const calculatedCost = clicks * 0.003;
 
-            if (confirm(`تكلفة الحملة هي ${cost} KAK. هل تود التأكيد؟`)) {
+            if (confirm(`تكلفة الحملة الإعلانية لـ ${clicks} زيارة هي ${calculatedCost.toFixed(3)} TON. هل تود التأكيد والخصم من رصيدك؟`)) {
                 fetch(`${API_BASE_URL}/api/create_ad`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ user_id: parseInt(userId), platform: platform, url: url, clicks: clicks, cost: cost, secret_key: SECRET_TOKEN })
+                    body: JSON.stringify({ user_id: parseInt(userId), platform: platform, url: url, clicks: clicks, cost: calculatedCost, secret_key: SECRET_TOKEN })
                 }).then(res => res.json()).then(data => {
-                    if (data.status === "success") { alert("🎉 تم إطلاق حملتك بنجاح!"); fetchUserBalance(); }
+                    if (data.status === "success") { alert("🎉 تم خصم الميزانية وإطلاق الحملة للمراجعة!"); fetchUserBalance(); }
                     else { alert("خطأ: " + data.detail); }
-                }).catch(() => alert("رصيدك غير كافٍ."));
+                }).catch(() => alert("عذراً، رصيدك الحالي من عملة TON غير كافٍ."));
             }
         }
 
@@ -137,23 +155,25 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: parseInt(userId), wallet: wallet, secret_key: SECRET_TOKEN })
             }).then(res => res.json()).then(data => {
-                if (data.status === "success") { alert("✅ تم تسجيل طلب السحب!"); fetchUserBalance(); }
-            });
+                if (data.status === "success") { alert("✅ تم تسجيل طلب السحب الفوري لـ Tonkeeper!"); fetchUserBalance(); }
+                else { alert("خطأ: " + data.detail); }
+            }).catch(() => alert("تأكد من بلوغ الحد الأدنى للسحب 0.20 TON."));
         }
 
         function shareReferralLink() {
             const refLink = document.getElementById('referral-link-box').value;
-            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي لمنصة KAK الإعلانية وسوّق لحساباتك! 📢🚀')}`);
+            tg.openTelegramLink(`https://t.me{encodeURIComponent(refLink)}&text=${encodeURIComponent('انضم معي لمنصة TON الإعلانية واكسب العملات مجاناً! 📢🚀')}`);
         }
 
         function watchAd() {
             alert("انتظر 5 ثوانٍ...");
-            setTimeout(() => { alert("✨ حصلت على 15 KAK"); sendRewardToBackend(15); }, 5000);
+            // المستخدم يكسب 0.002 TON (بعد خصم 33% عمولة ربح المنصة من الـ 0.003 الأصلية)
+            setTimeout(() => { alert("✨ تهانينا! كسبت 0.002 TON"); sendRewardToBackend(0.002); }, 5000);
         }
 
         function completeTask(type) {
-            tg.openTelegramLink("https://t.me"); // ⚠️ غير الرابط هنا
-            setTimeout(() => { alert("✅ حصلت على 100 KAK"); sendRewardToBackend(100); }, 4000);
+            tg.openTelegramLink("https://t.me"); 
+            setTimeout(() => { alert("✅ حصلت على 0.05 TON"); sendRewardToBackend(0.05); }, 4000);
         }
 
         function sendRewardToBackend(amount) {
